@@ -34,7 +34,7 @@ export default function RootLayout({
           <div>{children}</div>
         </ReactQueryProvider>
         <ToastContainer
-          position="top-center"
+          position="bottom-left"
           autoClose={3000}
           hideProgressBar={true}
           newestOnTop={false}
