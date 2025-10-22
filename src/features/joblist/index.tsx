@@ -41,7 +41,7 @@ export default function JobListPage() {
         `
         id, title, department, description, location,
         salary_min, salary_max, currency, status, created_at,
-        company:users!jobs_users_id_fkey ( company_name, company_logo_url )
+        company:users!jobs_users_id_fkey ( company_name, company_logo_url, location )
       `
       )
       .eq("status", "active")

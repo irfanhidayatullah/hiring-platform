@@ -14,5 +14,6 @@ export type Job = {
   company?: {
     company_name: string | null;
     company_logo_url: string | null;
+    location: string | null;
   } | null;
 };

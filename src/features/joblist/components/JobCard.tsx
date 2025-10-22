@@ -57,7 +57,7 @@ export default function JobCard({
           <div className="flex items-center gap-2 text-[13px] text-[#6C6C6C]">
             <MapPin className="h-[14px] w-[14px]" />
             <span className="truncate">
-              {job.location ?? "Location not specified"}
+              {job.company?.location ?? "Location not specified"}
             </span>
           </div>
           <div className="mt-2 flex items-center gap-2 text-[13px] text-[#6C6C6C]">
