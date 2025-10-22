@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createBrowserSupabase } from "@/utils/supabase/client";
 import { Search, User2 } from "lucide-react";
 import LogoutButton from "@/components/logoutbutton";
+import Image from "next/image";
 
 type Job = {
   id: string;
@@ -52,6 +53,7 @@ const JobApplicantListPage: React.FC<JobApplicantListPageProps> = ({
 
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [fullName, setFullName] = useState<string>("");
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const [job, setJob] = useState<Job | null>(null);
@@ -74,7 +76,7 @@ const JobApplicantListPage: React.FC<JobApplicantListPageProps> = ({
 
       const { data: profile } = await sb
         .from("users")
-        .select("user_roles, full_name")
+        .select("user_roles, full_name, company_logo_url")
         .eq("id", session.user.id)
         .single();
 
@@ -84,6 +86,7 @@ const JobApplicantListPage: React.FC<JobApplicantListPageProps> = ({
       }
 
       setFullName(profile?.full_name ?? "");
+      setCompanyLogoUrl(profile?.company_logo_url ?? null);
       setAllowed(true);
     };
     checkRole();
@@ -267,7 +270,17 @@ const JobApplicantListPage: React.FC<JobApplicantListPageProps> = ({
               aria-expanded={userMenuOpen}
               aria-label="User menu"
             >
-              <User2 className="h-5 w-5 text-gray-600" />
+              {companyLogoUrl ? (
+                <Image
+                  src={companyLogoUrl}
+                  alt="Company Logo"
+                  width={36}
+                  height={36}
+                  className="object-cover rounded-full"
+                />
+              ) : (
+                <User2 className="h-5 w-5 text-gray-600" />
+              )}
             </button>
 
             {userMenuOpen && (

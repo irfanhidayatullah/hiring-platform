@@ -2,6 +2,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { createBrowserSupabase } from "@/utils/supabase/client";
+import type {
+  FieldStateMap,
+  ProfileFieldKey,
+} from "@/features/joblist/schemas/ApplyJobSchema";
 
 export interface ApplyJobPayload {
   job_id: string;
@@ -12,11 +16,22 @@ export interface ApplyJobPayload {
   phone_number: string;
   email: string;
   linkedin_link: string;
-  // file asli untuk diupload
   photo_file: File | null;
+  field_states: FieldStateMap; // <<— baru
 }
 
 type InsertedCandidate = { id: string };
+
+const LABELS: Record<ProfileFieldKey, string> = {
+  photo_profile: "Photo Profile",
+  full_name: "Full Name",
+  date_of_birth: "Date of Birth",
+  gender: "Gender",
+  domicile: "Domicile",
+  phone_number: "Phone Number",
+  email: "Email",
+  linkedin_link: "LinkedIn",
+};
 
 const useApplyJob = () => {
   const supabase = createBrowserSupabase();
@@ -33,6 +48,7 @@ const useApplyJob = () => {
         email,
         linkedin_link,
         photo_file,
+        field_states,
       } = payload;
 
       const {
@@ -41,9 +57,10 @@ const useApplyJob = () => {
       if (!session) throw new Error("Not authenticated");
       const applicantId = session.user.id;
 
-      // 1) upload foto (opsional). pastikan bucket "candidate-photos" sudah ada dan public.
+      // 1) Upload foto hanya jika field 'photo_profile' tidak OFF dan ada file
       let photoUrl: string | null = null;
-      if (photo_file) {
+      const photoOn = field_states.photo_profile !== "off";
+      if (photoOn && photo_file) {
         const key = `${applicantId}/${Date.now()}-${photo_file.name}`;
         const { error: upErr } = await supabase.storage
           .from("candidate-photos")
@@ -68,37 +85,38 @@ const useApplyJob = () => {
       if (insErr) throw insErr;
       const candidateId = cand.id;
 
-      // 3) insert attributes (bulk)
-      const attrs = [
-        {
-          key: "photo_profile",
-          label: "Photo Profile",
-          value: photoUrl ?? "",
-          order: 1,
-        },
-        { key: "full_name", label: "Full Name", value: full_name, order: 2 },
-        {
-          key: "date_of_birth",
-          label: "Date of Birth",
-          value: date_of_birth,
-          order: 3,
-        },
-        { key: "gender", label: "Gender", value: gender, order: 4 },
-        { key: "domicile", label: "Domicile", value: domicile, order: 5 },
-        {
-          key: "phone_number",
-          label: "Phone Number",
-          value: phone_number,
-          order: 6,
-        },
-        { key: "email", label: "Email", value: email, order: 7 },
-        {
-          key: "linkedin_link",
-          label: "LinkedIn",
-          value: linkedin_link,
-          order: 8,
-        },
-      ].map((a) => ({ ...a, candidate_id: candidateId }));
+      // 3) build attributes sesuai field_states (skip "off")
+      const rawMap: Record<ProfileFieldKey, string> = {
+        photo_profile: photoUrl ?? "",
+        full_name,
+        date_of_birth,
+        gender,
+        domicile,
+        phone_number,
+        email,
+        linkedin_link,
+      };
+
+      const orderedKeys: ProfileFieldKey[] = [
+        "photo_profile",
+        "full_name",
+        "date_of_birth",
+        "gender",
+        "domicile",
+        "phone_number",
+        "email",
+        "linkedin_link",
+      ];
+
+      const attrs = orderedKeys
+        .filter((k) => field_states[k] !== "off")
+        .map((k, idx) => ({
+          key: k,
+          label: LABELS[k],
+          value: rawMap[k] ?? "",
+          order: idx + 1,
+          candidate_id: candidateId,
+        }));
 
       const { error: attrErr } = await supabase
         .from("candidate_attributes")
