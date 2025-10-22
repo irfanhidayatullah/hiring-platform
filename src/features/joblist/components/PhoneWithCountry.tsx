@@ -41,8 +41,8 @@ export default function PhoneWithCountry({
   }, [value]);
 
   React.useEffect(() => {
-    onChange(local ? `${dial} ${local}` : `${dial} `);
-  }, [dial, local]); // eslint-disable-line
+    onChange(local ? `${dial} ${local}` : "");
+  }, [dial, local]);
 
   const onlyDigits = (s: string) => s.replace(/[^\d]/g, "");
 

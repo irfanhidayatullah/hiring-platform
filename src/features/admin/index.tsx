@@ -107,33 +107,47 @@ export default function AdminPage() {
     validationSchema: CreateJobSchema,
     validateOnMount: true,
     onSubmit: async (values, helpers) => {
-      const inserted = await createJob(values);
+      try {
+        const inserted = await createJob(values);
 
-      if (inserted?.id) {
-        const sb = createBrowserSupabase();
-        await sb.from("job_configs").insert({
-          job_id: inserted.id,
-          config_json: {
-            application_form: {
-              sections: [
-                {
-                  title: "Minimum Profile Information Required",
-                  fields: (
-                    Object.entries(profileFields) as [
-                      ProfileFieldKey,
-                      FieldState
-                    ][]
-                  ).map(([key, state]) => ({ key, state })),
+        if (inserted?.id) {
+          const sb = createBrowserSupabase();
+          const { data: cfg, error: cfgErr } = await sb
+            .from("job_configs")
+            .insert({
+              job_id: inserted.id,
+              config_json: {
+                application_form: {
+                  sections: [
+                    {
+                      title: "Minimum Profile Information Required",
+                      fields: (
+                        Object.entries(profileFields) as [
+                          ProfileFieldKey,
+                          FieldState
+                        ][]
+                      ).map(([key, state]) => ({ key, state })),
+                    },
+                  ],
                 },
-              ],
-            },
-          },
-        });
-      }
+              },
+            })
+            .select("id") // minta balik id biar ketahuan berhasil
+            .single(); // satu baris
+          if (cfgErr) {
+            console.error("[Admin] insert job_configs failed:", cfgErr);
+            // opsional: tampilkan toast kalau kamu pakai react-toastify di halaman admin
+            // toast.error("Failed to save application form config");
+          }
+        }
 
-      setOpen(false);
-      helpers.resetForm();
-      fetchJobs();
+        setOpen(false);
+        helpers.resetForm();
+        fetchJobs();
+      } catch (e) {
+        console.error("[Admin] create job failed:", e);
+        // opsional: toast.error("Create job failed");
+      }
     },
   });
 
