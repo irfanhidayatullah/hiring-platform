@@ -3,10 +3,14 @@
 import LogoutButton from "@/components/logoutbutton";
 import { User2 } from "lucide-react";
 import React from "react";
+import Image from "next/image";
 
-type Props = { fullName: string };
+type Props = {
+  fullName: string;
+  companyLogoUrl?: string | null;
+};
 
-export default function HeaderUserMenu({ fullName }: Props) {
+export default function HeaderUserMenu({ fullName, companyLogoUrl }: Props) {
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -31,12 +35,22 @@ export default function HeaderUserMenu({ fullName }: Props) {
       <button
         type="button"
         onClick={() => setOpen((s) => !s)}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 ring-1 ring-gray-200 hover:bg-gray-200"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 ring-1 ring-gray-200 hover:bg-gray-200 overflow-hidden"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="User menu"
       >
-        <User2 className="h-5 w-5 text-gray-600" />
+        {companyLogoUrl ? (
+          <Image
+            src={companyLogoUrl}
+            alt="Company Logo"
+            width={36}
+            height={36}
+            className="object-cover rounded-full"
+          />
+        ) : (
+          <User2 className="h-5 w-5 text-gray-600" />
+        )}
       </button>
 
       {open && (

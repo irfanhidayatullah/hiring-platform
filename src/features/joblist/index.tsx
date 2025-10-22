@@ -14,6 +14,7 @@ export default function JobListPage() {
   const [fullName, setFullName] = useState("");
   const [applyOpen, setApplyOpen] = useState(false);
   const [appliedSet, setAppliedSet] = useState<Set<string>>(new Set());
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -26,10 +27,11 @@ export default function JobListPage() {
       }
       const { data } = await sb
         .from("users")
-        .select("full_name")
+        .select("full_name, company_logo_url")
         .eq("id", session.user.id)
         .single();
       setFullName(data?.full_name ?? "User");
+      setCompanyLogoUrl(data?.company_logo_url ?? null);
     };
     loadUser();
   }, [sb]);
@@ -95,7 +97,7 @@ export default function JobListPage() {
           <h1 className="text-lg font-semibold tracking-tight text-gray-900">
             Job Opportunities
           </h1>
-          <HeaderUserMenu fullName={fullName} />
+          <HeaderUserMenu fullName={fullName} companyLogoUrl={companyLogoUrl} />
         </div>
       </div>
 

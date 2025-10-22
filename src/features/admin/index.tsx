@@ -28,6 +28,7 @@ import useCreateJob, {
 } from "@/hooks/api/auth/useCreateJob";
 import { CreateJobSchema } from "./schemas/CreateJobSchema";
 import LogoutButton from "@/components/logoutbutton";
+import Image from "next/image";
 
 export type JobStatus = "active" | "inactive" | "draft";
 
@@ -61,6 +62,7 @@ const cx = (...classes: Array<string | false | null | undefined>) =>
 export default function AdminPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState<string>("");
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { mutateAsync: createJob, isPending: isCreating } = useCreateJob();
   const [allowed, setAllowed] = useState<boolean | null>(null);
@@ -168,7 +170,7 @@ export default function AdminPage() {
       }
       const { data: profile } = await sb
         .from("users")
-        .select("user_roles, full_name")
+        .select("user_roles, full_name, company_logo_url")
         .eq("id", session.user.id)
         .single();
 
@@ -177,6 +179,7 @@ export default function AdminPage() {
         return;
       }
       setFullName(profile?.full_name ?? "");
+      setCompanyLogoUrl(profile?.company_logo_url ?? null);
       setAllowed(true);
     };
     checkRole();
@@ -293,7 +296,17 @@ export default function AdminPage() {
               aria-expanded={userMenuOpen}
               aria-label="User menu"
             >
-              <User2 className="h-5 w-5 text-gray-600" />
+              {companyLogoUrl ? (
+                <Image
+                  src={companyLogoUrl}
+                  alt="Company Logo"
+                  width={36}
+                  height={36}
+                  className="object-cover rounded-full"
+                />
+              ) : (
+                <User2 className="h-5 w-5 text-gray-600" />
+              )}
             </button>
 
             {userMenuOpen && (

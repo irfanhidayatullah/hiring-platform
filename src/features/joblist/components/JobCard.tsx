@@ -3,6 +3,7 @@
 import { Image as ImageIcon, MapPin, Wallet } from "lucide-react";
 import { Job } from "../types";
 import React from "react";
+import Image from "next/image";
 
 export default function JobCard({
   job,
@@ -30,11 +31,12 @@ export default function JobCard({
     >
       <div className="relative">
         <div className="flex items-start gap-3">
-          <div className="h-11 w-11 shrink-0 rounded-sm border border-gray-200 bg-white flex items-center justify-center overflow-hidden">
+          <div className="h-11 w-11 shrink-0 rounded-sm border border-gray-200 bg-white flex items-center justify-center overflow-hidden relative">
             {job.company?.company_logo_url ? (
-              <img
+              <Image
                 src={job.company.company_logo_url}
                 alt="Company"
+                fill
                 className="h-full w-full object-cover"
               />
             ) : (
