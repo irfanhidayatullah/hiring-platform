@@ -44,6 +44,11 @@ const useCreateJob = () => {
         ? Number(salary_max.replace(/[^0-9]/g, ""))
         : null;
 
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+
       const insertBody = {
         title: title.trim(),
         department,
@@ -53,6 +58,7 @@ const useCreateJob = () => {
         salary_max: salMaxNum,
         status,
         currency,
+        users_id: session.user.id,
       };
 
       const { data, error } = await supabase

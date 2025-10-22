@@ -120,3 +120,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Scrollbar hijau untuk panel kiri job list */
+.scrollbar-teal {
+  scrollbar-width: thin;              /* Firefox */
+  scrollbar-color: #1E7D83 #E9F7F7;   /* thumb / track */
+}
+.scrollbar-teal::-webkit-scrollbar {
+  width: 10px;
+}
+.scrollbar-teal::-webkit-scrollbar-track {
+  background: #E9F7F7;                /* track hijau muda */
+  border-radius: 8px;
+}
+.scrollbar-teal::-webkit-scrollbar-thumb {
+  background: #1E7D83;                /* thumb hijau */
+  border-radius: 8px;
+}
+.scrollbar-teal::-webkit-scrollbar-thumb:hover {
+  background: #17666A;
+}
+
